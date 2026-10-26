@@ -24,6 +24,11 @@ A KID ini (no plugin) that gives the warm stews, soups, dumplings and fondue of 
 vanilla ones (stress down 10), and Gourmet's meads the one vanilla mead has (down 25). Without it, eating those dishes does nothing for your stress. The
 installer offers it as "Gourmet stress relief"; by hand, drop the ini from the gourmet folder next to the original mod's.
 
+OPTIONAL: LAST SEED SPOILED FOOD
+--------------------------------
+A second KID ini (no plugin): eating the spoiled food of Last Seed (moldy bread, rank fish, spoiled meat and the rest) raises your stress by 10. The
+installer offers it as "Last Seed spoiled food"; by hand, drop the ini from the lastseed folder next to the original mod's.
+
 REQUIREMENTS
 ------------
 - Stress and Fear (Nexus 116522) and the requirements it lists (powerofthree's Papyrus Extender, Keyword Item Distributor)
