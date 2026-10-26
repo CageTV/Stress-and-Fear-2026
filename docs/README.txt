@@ -55,6 +55,14 @@ OPTIONAL: LAST SEED SPOILED FOOD
 A second KID ini (no plugin): eating the spoiled food of Last Seed (moldy bread, rank fish, spoiled meat and the rest) raises your stress by 10. The
 installer offers it as "Last Seed spoiled food"; by hand, drop the ini from the lastseed folder next to the original mod's.
 
+OPTIONAL: OPTIMISED FEAR SCRIPT
+-------------------------------
+The original's Phobia_Tracker script decides at the end of every fight whether you develop or overcome a fear, with 24 copies of the same block, one per kind of
+enemy (909 lines). The installer's "Optimised Phobia_Tracker script" has the same logic written once (489 lines): one function tests the enemy in the original order,
+two functions develop or overcome the fear from tables, and the voice type and race are read once. The chances, health threshold, waits, sounds, messages and all
+183 properties are unchanged, so the original plugin fills them as before. It is the original author's script, rebuilt and shared with credit (patches are welcome
+on the original's page). Install it after the original Stress and Fear; uninstall it to go back to the original.
+
 REQUIREMENTS
 ------------
 - Stress and Fear (Nexus 116522) and the requirements it lists (powerofthree's Papyrus Extender, Keyword Item Distributor)
@@ -68,4 +76,4 @@ The installer asks which StressAndFear.dll: "new" for Skyrim 1.6.1170 and newer,
 CREDITS AND LICENSE
 -------------------
 Stress and Fear by JaySerpa. The settings pages and StressAndFear.dll are by CageTV, MIT licensed (see LICENSE.txt); they contain none of the original
-mod's code, scripts, meshes, textures, sounds or plugin.
+mod's code, meshes, textures, sounds or plugin; the optional script is JaySerpa's own, rebuilt with credit.

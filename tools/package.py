@@ -4,7 +4,7 @@
   package/Stress and Fear 2026 - Installer(.zip)    FOMOD: pick the DLL build (new / older)
 
 Needs plugin/build/release/StressAndFear.dll (older, plugin/build.cmd) and E:/WorkSpace/ng-build/build/release/out/StressAndFear/StressAndFear.dll
-(new, ng-build/build.cmd StressAndFear). No script, mesh, texture or plugin of the original mod is packaged.
+(new, ng-build/build.cmd StressAndFear). The only script packaged is the optional rebuilt Phobia_Tracker (open permission: patches welcome); no mesh, texture or plugin of the original mod is.
 
 Usage: python tools/package.py [version]
 """
@@ -50,6 +50,8 @@ CACO = "Stress and Fear 2026 - CACO and SUD_KID.ini"
 put(os.path.join(HERE, "cacosud", CACO), os.path.join(dest, "cacosud", CACO))
 SEED = "Stress and Fear 2026 - Last Seed_KID.ini"
 put(os.path.join(HERE, "lastseed", SEED), os.path.join(dest, "lastseed", SEED))
+put(os.path.join(HERE, "scripts", "build", "Phobia_Tracker.pex"), os.path.join(dest, "script", "scripts", "Phobia_Tracker.pex"))
+put(os.path.join(HERE, "scripts", "src", "Phobia_Tracker.psc"), os.path.join(dest, "script", "scripts", "source", "Phobia_Tracker.psc"))
 put(os.path.join(HERE, "docs", "README.txt"), os.path.join(dest, "README.txt"))
 put(os.path.join(HERE, "LICENSE.txt"), os.path.join(dest, "LICENSE.txt"))
 NEW_VER = "1.6.1170.0"
@@ -99,6 +101,15 @@ config = f"""<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:n
             <plugin name="Last Seed spoiled food">
               <description>A KID ini (no plugin) that makes eating the spoiled food of Last Seed raise your stress by 10. Needs Last Seed.</description>
               <files><folder source="lastseed" destination=""/></files>
+              <typeDescriptor><type name="Optional"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+        <group name="Script" type="SelectAny">
+          <plugins order="Explicit">
+            <plugin name="Optimised Phobia_Tracker script">
+              <description>The original mod's fear script with its 24 repeated blocks written once (489 lines instead of 909) and the same behaviour, chances and properties. Install after the original Stress and Fear so it wins. Needs the original mod.</description>
+              <files><folder source="script" destination=""/></files>
               <typeDescriptor><type name="Optional"/></typeDescriptor>
             </plugin>
           </plugins>
