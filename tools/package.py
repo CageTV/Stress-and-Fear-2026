@@ -46,6 +46,8 @@ put(NEW, os.path.join(dest, "new", "SKSE", "Plugins", "StressAndFear.dll"))
 put(OLD, os.path.join(dest, "older", "SKSE", "Plugins", "StressAndFear.dll"))
 GOURMET = "Stress and Fear 2026 - Gourmet_KID.ini"
 put(os.path.join(HERE, "gourmet", GOURMET), os.path.join(dest, "gourmet", GOURMET))
+CACO = "Stress and Fear 2026 - CACO and SUD_KID.ini"
+put(os.path.join(HERE, "cacosud", CACO), os.path.join(dest, "cacosud", CACO))
 SEED = "Stress and Fear 2026 - Last Seed_KID.ini"
 put(os.path.join(HERE, "lastseed", SEED), os.path.join(dest, "lastseed", SEED))
 put(os.path.join(HERE, "docs", "README.txt"), os.path.join(dest, "README.txt"))
@@ -87,6 +89,11 @@ config = f"""<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:n
             <plugin name="Gourmet stress relief">
               <description>A KID ini (no plugin) that gives the stews, soups, dumplings, fondue and meads of Gourmet - A Cooking Overhaul the keywords Stress and Fear uses for their vanilla equivalents. Needs Gourmet.</description>
               <files><folder source="gourmet" destination=""/></files>
+              <typeDescriptor><type name="Optional"/></typeDescriptor>
+            </plugin>
+            <plugin name="CACO and SUD stress relief">
+              <description>The content of the separate "Stress and Fear - CACO and SUD Patch" (a KID ini, no plugin): gives the ingestibles of Complete Alchemy and Cooking Overhaul and Skyrim Unique Drinks the keywords Stress and Fear uses. You do not need both mods. Turn the separate patch off when you use this.</description>
+              <files><folder source="cacosud" destination=""/></files>
               <typeDescriptor><type name="Optional"/></typeDescriptor>
             </plugin>
             <plugin name="Last Seed spoiled food">
