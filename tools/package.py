@@ -22,6 +22,9 @@ for p in (OLD, NEW):
     assert os.path.exists(p), f"missing {p}"
 NAME = "Stress and Fear 2026"
 
+LOGO = os.path.join(HERE, "assets", "stressandfear_logo.png")
+LOGO_DEST = os.path.join("Interface", "StressandFear", "stressandfear_logo.png")
+
 
 def put(src, dst):
     os.makedirs(os.path.dirname(dst), exist_ok=True)
@@ -33,6 +36,7 @@ quick = os.path.join(HERE, "package", NAME)
 if os.path.exists(quick):
     shutil.rmtree(quick)
 put(NEW, os.path.join(quick, "SKSE", "Plugins", "StressAndFear.dll"))
+put(LOGO, os.path.join(quick, LOGO_DEST))
 put(os.path.join(HERE, "docs", "README.txt"), os.path.join(quick, NAME + " README.txt"))
 put(os.path.join(HERE, "LICENSE.txt"), os.path.join(quick, NAME + " LICENSE.txt"))
 put(os.path.join(HERE, "gourmet", "Stress and Fear 2026 - Gourmet_KID.ini"), os.path.join(HERE, "package", NAME + " - Gourmet stress relief", "Stress and Fear 2026 - Gourmet_KID.ini"))
@@ -52,12 +56,14 @@ SEED = "Stress and Fear 2026 - Last Seed_KID.ini"
 put(os.path.join(HERE, "lastseed", SEED), os.path.join(dest, "lastseed", SEED))
 put(os.path.join(HERE, "scripts", "build", "Phobia_Tracker.pex"), os.path.join(dest, "script", "scripts", "Phobia_Tracker.pex"))
 put(os.path.join(HERE, "scripts", "src", "Phobia_Tracker.psc"), os.path.join(dest, "script", "scripts", "source", "Phobia_Tracker.psc"))
+put(LOGO, os.path.join(dest, "logo", LOGO_DEST))
 put(os.path.join(HERE, "docs", "README.txt"), os.path.join(dest, "README.txt"))
 put(os.path.join(HERE, "LICENSE.txt"), os.path.join(dest, "LICENSE.txt"))
 NEW_VER = "1.6.1170.0"
 config = f"""<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
   <moduleName>{NAME}</moduleName>
   <requiredInstallFiles>
+    <folder source="logo" destination=""/>
     <file source="README.txt" destination="{NAME} README.txt"/>
     <file source="LICENSE.txt" destination="{NAME} LICENSE.txt"/>
   </requiredInstallFiles>

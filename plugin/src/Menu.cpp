@@ -59,8 +59,25 @@ namespace Menu
 			return "Calm";
 		}
 
+		constexpr const char* kLogoPath = "Data\\Interface\\StressandFear\\stressandfear_logo.png";
+		constexpr float       kLogoAspect = 0.427f;
+
+		void Logo()
+		{
+			static ImTextureID tex = SKSEMenuFramework::LoadTexture(kLogoPath);
+			if (!tex) {
+				return;
+			}
+			const float avail = GetContentRegionAvail().x;
+			const float w = std::min(avail, 460.0f);
+			SetCursorPosX(GetCursorPosX() + (avail - w) * 0.5f);
+			Image(tex, ImVec2(w, w * kLogoAspect));
+			Spacing();
+		}
+
 		void __stdcall RenderOverview()
 		{
+			Logo();
 			if (!Guard()) {
 				return;
 			}
