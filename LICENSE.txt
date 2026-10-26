@@ -3,9 +3,12 @@ Copyright (c) 2026 CageTV
 
 Released under the MIT License. Source code: https://github.com/CageTV/Stress-and-Fear-2026
 
-This license covers the files written for this repository (StressAndFear.dll and the settings pages). It does not cover plugin/include/SKSEMenuFramework.h
-(the SKSE Menu Framework 3 project's SDK header, under that project's terms). The plugin, scripts, meshes, textures and sounds of Stress and Fear by JaySerpa are not included: they stay in the original mod, and this plugin only
-reads and changes its values while the game runs.
+This license covers the files written for this repository (StressAndFear.dll, the settings pages and the KID ini files). It does not cover plugin/include/
+SKSEMenuFramework.h (the SKSE Menu Framework 3 project's SDK header, under that project's terms), and it does not cover scripts/src/Phobia_Tracker.psc: that is
+JaySerpa's script from Stress and Fear with its repeated blocks written once and the same behaviour, shared here with credit and without any claim over the
+original work, and it comes down on the author's request. The ini files in cacosud/ are the content of "Stress and Fear - CACO and SUD Patch" by Soranotsora,
+included with the author's open permission. The plugin, other scripts, meshes, textures and sounds of Stress and Fear are not included: they stay in the
+original mod, and this plugin only reads and changes its values while the game runs.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
 to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
