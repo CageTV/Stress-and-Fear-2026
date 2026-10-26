@@ -110,7 +110,7 @@ config = f"""<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:n
 """
 info = (f"<fomod>\n  <Name>{NAME}</Name>\n  <Author>CageTV (Stress and Fear by JaySerpa)</Author>\n  <Version>{VERSION}</Version>\n"
         "  <Website>https://github.com/CageTV/Stress-and-Fear-2026</Website>\n"
-        "  <Description>Stress and Fear's settings in SKSE Menu Framework, replacing its MCM, with a live view of your stress and fears.</Description>\n</fomod>\n")
+        XX\n</fomod>\n")
 xml.dom.minidom.parseString(config)
 xml.dom.minidom.parseString(info)
 os.makedirs(os.path.join(dest, "fomod"), exist_ok=True)

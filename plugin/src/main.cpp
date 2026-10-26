@@ -5,6 +5,7 @@
  * Released under the MIT License; see LICENSE.txt.
  */
 #include "PCH.h"
+#include "LightTheWay.h"
 #include "Menu.h"
 #include "Settings.h"
 
@@ -32,10 +33,12 @@ namespace
 			break;
 		case SKSE::MessagingInterface::kDataLoaded:
 			Settings::OnDataLoaded();
+			LightTheWay::OnDataLoaded();
 			break;
 		case SKSE::MessagingInterface::kPostLoadGame:
 		case SKSE::MessagingInterface::kNewGame:
 			Settings::OnGameLoaded();
+			LightTheWay::OnGameLoaded();
 			break;
 		default:
 			break;

@@ -10,6 +10,8 @@ stress and your fears, and the tools a modded game needs to fix a save:
   Overview   your stress now (with its band: calm, minor, moderate, high, severe), and how many fears you have and have overcome
   Settings   Enable Stress System, Stress Rate (a slider and the five original presets), Enable Fear System, Show Message Box, and your current stress
   Fears      all 24 kinds of enemy with your state for each (afraid, overcome, none) and buttons to give, cure, overcome or reset a fear
+  Light the Way, Protections, Location Types, Custom Locations
+             the settings, protections, location types and marked places of Light the Way (see below), when that add-on is installed
   Profile    the settings file, applying it on every load, and reset to default
 
 Every setting is one of the original mod's own global variables, the same ones its MCM writes, so the pages and the mod always agree. Switching the
@@ -17,6 +19,19 @@ stress system off sets your stress back to 0, as the original menu does. Your st
 never saved in the settings file. Turn the original MCM off (or just do not use it) so the two do not fight over the same values.
 
 Your choices are kept in Data/SKSE/Plugins/StressAndFear/settings.ini and applied on every game load, so they follow you to a new character.
+
+LIGHT THE WAY
+-------------
+Light the Way (Nexus 171532, by Blackspine18859) is an add-on that adds stress while you explore dangerous places. When it is installed, this plugin runs it
+natively: a timer adds stress every interval in stressful places unless a protection stops it (campfire, sneaking, torch, lantern, invisibility, candlelight,
+night eye, vampires and undead, werewolves, followers), with the original's order, half chances in combat, follower maths, night rule and level cap.
+Its MCM is replaced by four pages: Light the Way (switches, amount, interval, where stress builds, powers), Protections, Location Types (the 21 kinds of
+place) and Custom Locations (places you marked or forced to count as interiors, plus buttons that do what its three powers do).
+
+Light the Way's plugin stays installed as the data file: every setting is one of its own global variables and every list of places is one of its own form
+lists, so your save and your settings carry over untouched, and you no longer need JContainers for it. To stop its own script from adding stress at the same
+time, this plugin holds Light the Way's master switch at 0 while it runs the add-on; its own "Enable Light the Way" switch is on the first page. "Run Light the
+Way from this plugin" turns that over: switch it off and the original script resumes at your next location change and its MCM works again.
 
 OPTIONAL: GOURMET STRESS RELIEF
 -------------------------------

@@ -9,6 +9,7 @@ add_commonlibsse_plugin(${PROJECT_NAME} NAME "StressAndFear" AUTHOR "CageTV" SOU
     src/main.cpp
     src/Settings.cpp
     src/Phobias.cpp
+    src/LightTheWay.cpp
     src/Menu.cpp
 )
 

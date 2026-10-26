@@ -5,6 +5,7 @@
  * Released under the MIT License; see LICENSE.txt.
  */
 #include "PCH.h"
+#include "LightTheWay.h"
 #include "Menu.h"
 #include "Phobias.h"
 #include "Settings.h"
@@ -188,6 +189,159 @@ namespace Menu
 			}
 		}
 
+		// ---- Light the Way ------------------------------------------------------------------------------------------------------------
+		bool LtwGuard()
+		{
+			if (!Settings::Loaded() || !LightTheWay::Present()) {
+				TextWrapped("Light the Way is not installed (Light the Way.esp is not loaded), so there is nothing to show here. Light the Way is an add-on of Stress and "
+							"Fear that adds stress while you explore dangerous places.");
+				return false;
+			}
+			return true;
+		}
+
+		void DrawLtwDef(const LightTheWay::Def& a_d, int a_id)
+		{
+			PushID(a_id);
+			if (a_d.kind == LightTheWay::Kind::Toggle) {
+				bool on = LightTheWay::Get(a_d) > 0.5f;
+				if (Checkbox(a_d.label, &on)) {
+					LightTheWay::Set(a_d, on ? 1.0f : 0.0f);
+				}
+			} else {
+				float v = LightTheWay::Get(a_d);
+				if (SliderFloat(a_d.label, &v, a_d.min, a_d.max, a_d.fmt)) {
+					LightTheWay::Set(a_d, std::round(v / a_d.step) * a_d.step);
+				}
+			}
+			Tip(a_d.tip);
+			PopID();
+		}
+
+		void DrawLtwGroup(int a_group, const char* a_title)
+		{
+			SeparatorText(a_title);
+			for (int i = 0; i < LightTheWay::kDefCount; ++i) {
+				if (LightTheWay::kDefs[i].group == a_group) {
+					DrawLtwDef(LightTheWay::kDefs[i], i);
+				}
+			}
+		}
+
+		void __stdcall RenderLtw()
+		{
+			if (!LtwGuard()) {
+				return;
+			}
+			SeparatorText("Light the Way");
+			TextWrapped("While you explore stressful places, Light the Way adds a little stress every interval unless a protection stops it (a torch, a lit fire, "
+						"followers, sneaking and more; see the Protections page). These pages replace its MCM and its script.");
+			bool master = LightTheWay::Master();
+			if (Checkbox("Enable Light the Way", &master)) {
+				LightTheWay::SetMaster(master);
+			}
+			Tip("The master switch of Light the Way.");
+			bool takeover = LightTheWay::Takeover();
+			if (Checkbox("Run Light the Way from this plugin", &takeover)) {
+				LightTheWay::SetTakeover(takeover);
+			}
+			Tip("On: this plugin does the work and the original script is silenced (its master switch is held at 0). Off: the original script resumes at your next location change "
+				"and its MCM works again. Your settings stay the same either way.");
+			TextDisabled("Where you are: %s", LightTheWay::CurrentLocationText().c_str());
+			DrawLtwGroup(LightTheWay::kGroupGeneral, "Stress");
+			DrawLtwGroup(LightTheWay::kGroupLocations, "Where stress builds");
+			DrawLtwGroup(LightTheWay::kGroupPowers, "Powers");
+			SeparatorText("Defaults");
+			static float confirm = 0.0f;
+			confirm -= GetIO()->DeltaTime;
+			if (confirm > 0.0f) {
+				TextWrapped("Reset every Light the Way setting to what the mod ships with and turn all location types back on? Your marked locations are kept.");
+				if (Button("Yes, reset")) {
+					LightTheWay::ResetDefaults();
+					confirm = 0.0f;
+				}
+				SameLine();
+				if (Button("Cancel")) {
+					confirm = 0.0f;
+				}
+			} else if (Button("Reset Light the Way to default")) {
+				confirm = 10.0f;
+			}
+		}
+
+		void __stdcall RenderLtwProtections()
+		{
+			if (!LtwGuard()) {
+				return;
+			}
+			TextWrapped("Each protection rolls on its own every interval. At 100 % it always stops the stress while its condition holds. In combat every chance is halved "
+						"(unless Combat Stress is off).");
+			DrawLtwGroup(LightTheWay::kGroupProtections, "Protections");
+			DrawLtwGroup(LightTheWay::kGroupFollowers, "Followers");
+		}
+
+		void __stdcall RenderLtwLocationTypes()
+		{
+			if (!LtwGuard()) {
+				return;
+			}
+			TextWrapped("The kinds of place that count as stressful. A place needs at least one of these to build stress, unless you mark it yourself on the Custom Locations page.");
+			Spacing();
+			if (BeginTable("loctypes", 3)) {
+				for (int i = 0; i < LightTheWay::KeywordCount(); ++i) {
+					TableNextColumn();
+					PushID(i);
+					bool on = LightTheWay::KeywordEnabled(i);
+					if (Checkbox(LightTheWay::KeywordName(i), &on)) {
+						LightTheWay::SetKeywordEnabled(i, on);
+					}
+					PopID();
+				}
+				EndTable();
+			}
+		}
+
+		void DrawLtwList(LightTheWay::ListKind a_kind, const char* a_title, const char* a_empty)
+		{
+			SeparatorText(a_title);
+			const auto entries = LightTheWay::Entries(a_kind);
+			if (entries.empty()) {
+				TextDisabled("%s", a_empty);
+				return;
+			}
+			for (const auto& e : entries) {
+				PushID(static_cast<int>(e.formID));
+				bool on = e.active;
+				if (Checkbox(e.name.c_str(), &on)) {
+					LightTheWay::SetEntryActive(a_kind, e.formID, on);
+				}
+				PopID();
+			}
+		}
+
+		void __stdcall RenderLtwCustom()
+		{
+			if (!LtwGuard()) {
+				return;
+			}
+			TextDisabled("Where you are: %s", LightTheWay::CurrentLocationText().c_str());
+			if (Button("Mark or unmark this location")) {
+				LightTheWay::MarkCurrent();
+			}
+			Tip("In a place that is not stressful, marks it as stressful. In a place that is, excludes it. In a place you marked before, undoes that.");
+			SameLine();
+			if (Button("Force this location as an interior")) {
+				LightTheWay::ForceCurrentInterior();
+			}
+			Tip("Makes an outdoor place count as an interior (a ruin under the open sky, a walled fort). Press it again there to undo.");
+			TextWrapped("Ticked places are in effect. Untick one to switch it off without forgetting it. Each list holds up to 128 places.");
+			DrawLtwList(LightTheWay::ListKind::InteriorInclude, "Interiors marked as stressful", "None yet.");
+			DrawLtwList(LightTheWay::ListKind::InteriorExclude, "Interiors excluded from stress", "None yet.");
+			DrawLtwList(LightTheWay::ListKind::ExteriorInclude, "Outdoor places marked as stressful", "None yet.");
+			DrawLtwList(LightTheWay::ListKind::ExteriorExclude, "Outdoor places excluded from stress", "None yet.");
+			DrawLtwList(LightTheWay::ListKind::ForcedInterior, "Outdoor places forced to count as interiors", "None yet.");
+		}
+
 		void __stdcall RenderProfile()
 		{
 			static float confirmTimer = 0.0f;
@@ -202,10 +356,15 @@ namespace Menu
 			Spacing();
 			if (Button("Save the current values now")) {
 				Settings::SaveNow();
+				LightTheWay::SaveNow();
 			}
 			SameLine();
 			if (Button("Load the file now")) {
 				Settings::LoadNow();
+				LightTheWay::LoadNow();
+			}
+			if (LightTheWay::Present()) {
+				TextDisabled("Light the Way: %s", LightTheWay::FilePath());
 			}
 			Spacing();
 			SeparatorText("Defaults");
@@ -225,7 +384,11 @@ namespace Menu
 		}
 
 		// Drawn every frame whether or not the menu is open: writes the settings file a moment after the last change.
-		void __stdcall Frame() { Settings::Tick(GetIO()->DeltaTime); }
+		void __stdcall Frame()
+		{
+			Settings::Tick(GetIO()->DeltaTime);
+			LightTheWay::Tick(GetIO()->DeltaTime);
+		}
 	}
 
 	bool Registered() { return registered; }
@@ -240,6 +403,10 @@ namespace Menu
 		SKSEMenuFramework::AddSectionItem("Overview", RenderOverview);
 		SKSEMenuFramework::AddSectionItem("Settings", RenderSettings);
 		SKSEMenuFramework::AddSectionItem("Fears", RenderFears);
+		SKSEMenuFramework::AddSectionItem("Light the Way", RenderLtw);
+		SKSEMenuFramework::AddSectionItem("Protections", RenderLtwProtections);
+		SKSEMenuFramework::AddSectionItem("Location Types", RenderLtwLocationTypes);
+		SKSEMenuFramework::AddSectionItem("Custom Locations", RenderLtwCustom);
 		SKSEMenuFramework::AddSectionItem("Profile", RenderProfile);
 		SKSEMenuFramework::AddHudElement(Frame);
 		registered = true;
