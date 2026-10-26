@@ -5,6 +5,7 @@
  * Released under the MIT License; see LICENSE.txt.
  */
 #include "PCH.h"
+#include "Hud.h"
 #include "LightTheWay.h"
 #include "Menu.h"
 #include "Settings.h"
@@ -34,6 +35,7 @@ namespace
 		case SKSE::MessagingInterface::kDataLoaded:
 			Settings::OnDataLoaded();
 			LightTheWay::OnDataLoaded();
+			Hud::Load();
 			break;
 		case SKSE::MessagingInterface::kPostLoadGame:
 		case SKSE::MessagingInterface::kNewGame:

@@ -5,6 +5,7 @@
  * Released under the MIT License; see LICENSE.txt.
  */
 #include "PCH.h"
+#include "Hud.h"
 #include "LightTheWay.h"
 #include "Menu.h"
 #include "Phobias.h"
@@ -342,6 +343,56 @@ namespace Menu
 			DrawLtwList(LightTheWay::ListKind::ForcedInterior, "Outdoor places forced to count as interiors", "None yet.");
 		}
 
+		// ---- the stress bar -----------------------------------------------------------------------------------------------------------
+		bool Changed(bool a_changed)
+		{
+			if (a_changed) {
+				Hud::MarkDirty();
+			}
+			return a_changed;
+		}
+
+		void __stdcall RenderHud()
+		{
+			auto& c = Hud::Cfg();
+			Hud::MarkPreview();  // keep the bar visible while this page is open
+			TextWrapped("A thin bar centred above the compass that fills with your stress and changes colour with its band. It stays on screen while this page is open so "
+						"you can place it.");
+			Spacing();
+			Changed(Checkbox("Show the stress bar", &c.enabled));
+			Tip("The bar is only drawn while the stress system is switched on in Settings.");
+			BeginDisabled(!c.enabled);
+			static const char* modes[] = { "Always", "Contextual (fade out while calm)" };
+			Changed(Combo("Display", &c.displayMode, modes, 2));
+			Tip("Contextual: the bar shows while your stress changes or is above the calm band (over 25), and fades out when you are calm and nothing has changed.");
+			if (c.displayMode == 1) {
+				Changed(SliderFloat("Stay visible after a change (s)", &c.contextualSeconds, 1.0f, 30.0f, "%.0f"));
+			}
+
+			SeparatorText("Position and size");
+			Changed(SliderFloat("Horizontal (centre)", &c.posX, 0.0f, 1.0f, "%.3f"));
+			Changed(SliderFloat("Vertical (centre)", &c.posY, 0.0f, 1.0f, "%.3f"));
+			Tip("0.925 sits just above the vanilla compass. Lower the number to raise the bar.");
+			Changed(SliderFloat("Scale", &c.scale, 0.5f, 3.0f, "%.2f"));
+			Changed(SliderFloat("Bar length", &c.barLength, 60.0f, 800.0f, "%.0f"));
+			Changed(SliderFloat("Bar thickness", &c.barThickness, 2.0f, 30.0f, "%.0f"));
+			Changed(SliderFloat("Opacity", &c.opacity, 0.1f, 1.0f, "%.2f"));
+
+			SeparatorText("Details");
+			Changed(Checkbox("Show the word Stress", &c.showLabel));
+			Changed(Checkbox("Show the number", &c.showValue));
+			Changed(Checkbox("Show the band marks (25, 45, 65, 85)", &c.showTicks));
+			Changed(Checkbox("Pulse in the severe band", &c.pulse));
+
+			Spacing();
+			if (Button("Reset position and size")) {
+				Hud::ResetLayout();
+				Hud::MarkDirty();
+			}
+			EndDisabled();
+			TextDisabled("%s", Hud::FilePath());
+		}
+
 		void __stdcall RenderProfile()
 		{
 			static float confirmTimer = 0.0f;
@@ -388,6 +439,7 @@ namespace Menu
 		{
 			Settings::Tick(GetIO()->DeltaTime);
 			LightTheWay::Tick(GetIO()->DeltaTime);
+			Hud::Render();
 		}
 	}
 
@@ -407,6 +459,7 @@ namespace Menu
 		SKSEMenuFramework::AddSectionItem("Protections", RenderLtwProtections);
 		SKSEMenuFramework::AddSectionItem("Location Types", RenderLtwLocationTypes);
 		SKSEMenuFramework::AddSectionItem("Custom Locations", RenderLtwCustom);
+		SKSEMenuFramework::AddSectionItem("HUD", RenderHud);
 		SKSEMenuFramework::AddSectionItem("Profile", RenderProfile);
 		SKSEMenuFramework::AddHudElement(Frame);
 		registered = true;

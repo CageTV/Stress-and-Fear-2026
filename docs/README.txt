@@ -12,6 +12,7 @@ stress and your fears, and the tools a modded game needs to fix a save:
   Fears      all 24 kinds of enemy with your state for each (afraid, overcome, none) and buttons to give, cure, overcome or reset a fear
   Light the Way, Protections, Location Types, Custom Locations
              the settings, protections, location types and marked places of Light the Way (see below), when that add-on is installed
+  HUD        the stress bar: a thin horizontal bar centred above the compass (see below)
   Profile    the settings file, applying it on every load, and reset to default
 
 Every setting is one of the original mod's own global variables, the same ones its MCM writes, so the pages and the mod always agree. Switching the
@@ -19,6 +20,16 @@ stress system off sets your stress back to 0, as the original menu does. Your st
 never saved in the settings file. Turn the original MCM off (or just do not use it) so the two do not fight over the same values.
 
 Your choices are kept in Data/SKSE/Plugins/StressAndFear/settings.ini and applied on every game load, so they follow you to a new character.
+
+THE STRESS BAR
+--------------
+A thin horizontal bar sits centred just above the vanilla compass and fills with your stress. Its colour follows the band you are in (calm green, yellow-green,
+amber, orange, red), thin marks show where the bands start (25, 45, 65, 85), and the word Stress and your number sit above its ends. It pulses slowly in the
+severe band. By default it fades out while you are calm and nothing has changed, and comes back when your stress changes or rises above the calm band.
+
+It has the same adjustable controls as the HUD bars of Frostfall 2026: show or hide, display mode (always or contextual), how long it stays after a change,
+horizontal and vertical position, scale, length, thickness and opacity, with a reset button, and it stays on screen while the HUD page is open so you can place it.
+The settings are kept in Data/SKSE/Plugins/StressAndFear/hud.ini. The bar is only drawn while the stress system is switched on in Settings.
 
 LIGHT THE WAY
 -------------
