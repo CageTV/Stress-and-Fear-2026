@@ -125,6 +125,7 @@ namespace LightTheWay
 		std::atomic<bool>  needEval{ true };
 		std::atomic<bool>  qualifying{ false };
 		std::atomic<bool>  busy{ false };
+		float              keywordFillIn = -1.0f;  // seconds of play until the location types are filled in if the list is still empty (-1 = none)
 		unsigned int       lastKey = 0xFFFFFFFFu;
 		std::string        locText = "unknown";
 
@@ -267,6 +268,9 @@ namespace LightTheWay
 				} catch (...) {
 				}
 			}
+			if (iniKeywords.empty()) {
+				iniHasKeywords = false;
+			}
 			return true;
 		}
 
@@ -285,15 +289,18 @@ namespace LightTheWay
 			for (const auto& d : kDefs) {
 				out << d.id << "=" << Get(d) << "\n";
 			}
-			out << "keywords=";
-			bool first = true;
+			// An empty list is never written: right after a load the list may still be filling (list edits go through the game's script engine, which is busy then),
+			// and an empty line would switch every location type off at the next load.
+			std::string enabled;
 			for (int i = 0; i < KeywordCount(); ++i) {
 				if (KeywordEnabled(i)) {
-					out << (first ? "" : ",") << kKeywords[i].name;
-					first = false;
+					enabled += (enabled.empty() ? "" : ",");
+					enabled += kKeywords[i].name;
 				}
 			}
-			out << "\n";
+			if (!enabled.empty()) {
+				out << "keywords=" << enabled << "\n";
+			}
 			dirty = false;
 			fileExisted = true;
 		}
@@ -868,13 +875,8 @@ namespace LightTheWay
 		if (!fileExisted) {
 			// First time: adopt the settings the game already has, and keep the original master switch value.
 			master = GV(kEnabledGlobal, 1.0f) > 0.5f || !takeover;
-			if (auto* list = List(kEnabledKeywords);
-				list && list->forms.empty() && (!list->scriptAddedTempForms || list->scriptAddedTempForms->empty())) {
-				for (int i = 0; i < KeywordCount(); ++i) {
-					SetKeywordEnabled(i, true);  // the original menu starts with every location type on
-				}
-			}
-			Touch();  // written a moment later, once the queued list edits above have run (writing now would record an empty list)
+			keywordFillIn = 25.0f;  // the original menu fills the list itself when it starts; only if it has not by then is it done here (see Tick)
+			Touch();
 			SKSE::log::info("Light the Way: settings adopted from the game, takeover {}", takeover ? "on" : "off");
 		} else if (Settings::ApplyOnLoad()) {
 			PushIniToGame();
@@ -893,6 +895,21 @@ namespace LightTheWay
 			writeTimer -= a_dt;
 			if (writeTimer <= 0.0f) {
 				WriteFile();
+			}
+		}
+		if (keywordFillIn > 0.0f && Present()) {
+			keywordFillIn -= a_dt;
+			if (keywordFillIn <= 0.0f) {
+				keywordFillIn = -1.0f;
+				SKSE::GetTaskInterface()->AddTask([]() {
+					auto* list = List(kEnabledKeywords);
+					if (list && list->forms.empty() && (!list->scriptAddedTempForms || list->scriptAddedTempForms->empty())) {
+						for (int i = 0; i < KeywordCount(); ++i) {
+							SetKeywordEnabled(i, true);  // the original menu starts with every location type on
+						}
+						SKSE::log::info("Light the Way: the location type list was empty, all 21 types switched on");
+					}
+				});
 			}
 		}
 		if (!Active()) {
