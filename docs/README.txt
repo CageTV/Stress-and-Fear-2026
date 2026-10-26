@@ -18,6 +18,12 @@ never saved in the settings file. Turn the original MCM off (or just do not use 
 
 Your choices are kept in Data/SKSE/Plugins/StressAndFear/settings.ini and applied on every game load, so they follow you to a new character.
 
+OPTIONAL: GOURMET STRESS RELIEF
+-------------------------------
+A KID ini (no plugin) that gives the warm stews, soups, dumplings and fondue of Gourmet - A Cooking Overhaul the keyword Stress and Fear uses for the
+vanilla ones (stress down 10), and Gourmet's meads the one vanilla mead has (down 25). Without it, eating those dishes does nothing for your stress. The
+installer offers it as "Gourmet stress relief"; by hand, drop the ini from the gourmet folder next to the original mod's.
+
 REQUIREMENTS
 ------------
 - Stress and Fear (Nexus 116522) and the requirements it lists (powerofthree's Papyrus Extender, Keyword Item Distributor)

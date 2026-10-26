@@ -35,6 +35,7 @@ if os.path.exists(quick):
 put(NEW, os.path.join(quick, "SKSE", "Plugins", "StressAndFear.dll"))
 put(os.path.join(HERE, "docs", "README.txt"), os.path.join(quick, NAME + " README.txt"))
 put(os.path.join(HERE, "LICENSE.txt"), os.path.join(quick, NAME + " LICENSE.txt"))
+put(os.path.join(HERE, "gourmet", "Stress and Fear 2026 - Gourmet_KID.ini"), os.path.join(HERE, "package", NAME + " - Gourmet stress relief", "Stress and Fear 2026 - Gourmet_KID.ini"))
 
 # ---- the installer ----------------------------------------------------------------------------------------------------------------
 dest = os.path.join(HERE, "package", NAME + " - Installer")
@@ -42,6 +43,8 @@ if os.path.exists(dest):
     shutil.rmtree(dest)
 put(NEW, os.path.join(dest, "new", "SKSE", "Plugins", "StressAndFear.dll"))
 put(OLD, os.path.join(dest, "older", "SKSE", "Plugins", "StressAndFear.dll"))
+GOURMET = "Stress and Fear 2026 - Gourmet_KID.ini"
+put(os.path.join(HERE, "gourmet", GOURMET), os.path.join(dest, "gourmet", GOURMET))
 put(os.path.join(HERE, "docs", "README.txt"), os.path.join(dest, "README.txt"))
 put(os.path.join(HERE, "LICENSE.txt"), os.path.join(dest, "LICENSE.txt"))
 NEW_VER = "1.6.1170.0"
@@ -69,6 +72,19 @@ config = f"""<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:n
               <typeDescriptor><dependencyType><defaultType name="Optional"/><patterns>
                 <pattern><dependencies><gameDependency version="{NEW_VER}"/></dependencies><type name="Optional"/></pattern>
               </patterns></dependencyType></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Add-ons">
+      <optionalFileGroups order="Explicit">
+        <group name="Gourmet" type="SelectAny">
+          <plugins order="Explicit">
+            <plugin name="Gourmet stress relief">
+              <description>A KID ini (no plugin) that gives the stews, soups, dumplings, fondue and meads of Gourmet - A Cooking Overhaul the keywords Stress and Fear uses for their vanilla equivalents. Needs Gourmet.</description>
+              <files><folder source="gourmet" destination=""/></files>
+              <typeDescriptor><type name="Optional"/></typeDescriptor>
             </plugin>
           </plugins>
         </group>
