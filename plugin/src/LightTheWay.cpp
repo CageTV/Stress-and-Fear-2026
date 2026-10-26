@@ -868,12 +868,13 @@ namespace LightTheWay
 		if (!fileExisted) {
 			// First time: adopt the settings the game already has, and keep the original master switch value.
 			master = GV(kEnabledGlobal, 1.0f) > 0.5f || !takeover;
-			if (auto* list = List(kEnabledKeywords); list && list->scriptAddedTempForms && list->scriptAddedTempForms->empty()) {
+			if (auto* list = List(kEnabledKeywords);
+				list && list->forms.empty() && (!list->scriptAddedTempForms || list->scriptAddedTempForms->empty())) {
 				for (int i = 0; i < KeywordCount(); ++i) {
 					SetKeywordEnabled(i, true);  // the original menu starts with every location type on
 				}
 			}
-			WriteFile();
+			Touch();  // written a moment later, once the queued list edits above have run (writing now would record an empty list)
 			SKSE::log::info("Light the Way: settings adopted from the game, takeover {}", takeover ? "on" : "off");
 		} else if (Settings::ApplyOnLoad()) {
 			PushIniToGame();
