@@ -7,3 +7,8 @@ package/
 *.pdb
 *.zip
 __pycache__/
+
+scripts/original/
+scripts/build/
+scripts/build-original/
+scripts/newtail.psc
