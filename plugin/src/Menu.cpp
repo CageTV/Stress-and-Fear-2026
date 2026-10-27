@@ -387,6 +387,12 @@ namespace Menu
 			}
 
 			SeparatorText("Position and size");
+			static const char* orientations[] = { "Lying flat", "Standing" };
+			Changed(Combo("Direction", &c.orientation, orientations, 2));
+			Changed(Checkbox("Flip: fill from the other end", &c.flip));
+			Tip("A flat bar fills from the left; flipped, from the right. A standing bar fills from the bottom; flipped, from the top.");
+			Checkbox("Move the bar with the mouse", &Hud::EditMode());
+			Tip("While this is ticked, click the bar on the screen and drag it where you want it. The sliders below do the same, to the pixel.");
 			Changed(SliderFloat("Horizontal (centre)", &c.posX, 0.0f, 1.0f, "%.3f"));
 			Changed(SliderFloat("Vertical (centre)", &c.posY, 0.0f, 1.0f, "%.3f"));
 			Tip("0.925 sits just above the vanilla compass. Lower the number to raise the bar.");

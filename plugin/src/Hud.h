@@ -26,6 +26,8 @@ namespace Hud
 		bool  showValue = true;          // the number above the right end
 		bool  showTicks = true;          // thin marks at the band edges (25, 45, 65, 85)
 		bool  pulse = true;              // a slow pulse in the severe band
+		int   orientation = 0;           // 0 = lying flat (horizontal), 1 = standing (vertical)
+		bool  flip = false;              // fill from the other end (right / top)
 	};
 
 	Config& Cfg();
@@ -34,6 +36,7 @@ namespace Hud
 	void    ResetLayout();   // position, scale, length, thickness and opacity back to the defaults
 	void    MarkDirty();     // the file is written a moment after the last change
 	void    MarkPreview();   // keep the bar visible while its settings page is open
+	bool&   EditMode();      // while true (and the settings page is open) the bar can be dragged with the mouse; not saved
 	void    Render();        // every frame, from the menu framework's HUD callback
 	const char* FilePath();
 }

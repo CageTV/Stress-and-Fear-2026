@@ -9,6 +9,7 @@
 #include "Settings.h"
 
 #include "SKSEMenuFramework.h"
+#include "BarKit.h"
 
 namespace Hud
 {
@@ -26,6 +27,8 @@ namespace Hud
 		float lastRaw = -1.0f;      // last stress value, to notice a change
 		float sinceChange = 1e6f;   // seconds since the stress last changed
 		float groupAlpha = 1.0f;
+		bool  editMode = false;
+		int   dragBar = -1;
 
 		struct Rgb
 		{
@@ -86,11 +89,12 @@ namespace Hud
 			return player && player->Is3DLoaded() && Settings::Available();
 		}
 
-		void DrawLabel(ImDrawList* a_dl, const char* a_text, float a_x, float a_y, float a_size, float a_alpha, bool a_alignRight)
+		// a_align: 0 = text starts at a_x, 1 = text ends at a_x, 2 = text centred on a_x
+		void DrawLabel(ImDrawList* a_dl, const char* a_text, float a_x, float a_y, float a_size, float a_alpha, int a_align)
 		{
 			const float factor = a_size / std::max(GetFontSize(), 1.0f);
 			const float width = CalcTextSize(a_text).x * factor;
-			const float x = a_alignRight ? a_x - width : a_x;
+			const float x = a_align == 1 ? a_x - width : (a_align == 2 ? a_x - width * 0.5f : a_x);
 			ImDrawListManager::AddText(a_dl, GetFont(), a_size, ImVec2(x + 1.0f, a_y + 1.0f), Col(0, 0, 0, 0.7f * a_alpha), a_text);
 			ImDrawListManager::AddText(a_dl, GetFont(), a_size, ImVec2(x, a_y), Col(228, 232, 238, 0.95f * a_alpha), a_text);
 		}
@@ -132,45 +136,86 @@ namespace Hud
 
 			const float L = cfg.barLength * k;
 			const float T = std::max(2.0f, cfg.barThickness * k);
-			const float x = cfg.posX * W - L * 0.5f;
-			const float y = cfg.posY * H - T * 0.5f;
+			const bool  vertical = cfg.orientation == 1;
+			const float bw = vertical ? T : L;   // the bar's size on screen
+			const float bh = vertical ? L : T;
+			const float x = cfg.posX * W - bw * 0.5f;
+			const float y = cfg.posY * H - bh * 0.5f;
 			const float rounding = std::min(T * 0.5f, 3.0f);
 
 			// track
-			ImDrawListManager::AddRectFilled(a_dl, ImVec2(x, y), ImVec2(x + L, y + T), Col(10, 12, 16, 0.55f * alpha), rounding, 0);
+			ImDrawListManager::AddRectFilled(a_dl, ImVec2(x, y), ImVec2(x + bw, y + bh), Col(10, 12, 16, 0.55f * alpha), rounding, 0);
 
-			// fill: lighter on top, deeper underneath
-			const float fw = L * std::clamp(shown, 0.0f, 1.0f);
-			if (fw >= 1.0f) {
+			// fill: lighter on one side of its thickness, deeper on the other; it grows from the left (flat) or the bottom (standing), or from the
+			// other end when flipped
+			const float fl = L * std::clamp(shown, 0.0f, 1.0f);
+			if (fl >= 1.0f) {
 				const Rgb   c = StressColor(shown * 100.0f);
 				const ImU32 cTop = Col(c.r + 35, c.g + 35, c.b + 35, 0.95f * alpha);
 				const ImU32 cBot = Col(c.r * 0.8f, c.g * 0.8f, c.b * 0.8f, 0.95f * alpha);
-				ImDrawListManager::AddRectFilledMultiColor(a_dl, ImVec2(x, y), ImVec2(x + fw, y + T), cTop, cTop, cBot, cBot);
-			}
-
-			// band edges
-			if (cfg.showTicks) {
-				for (const float edge : { 25.0f, 45.0f, 65.0f, 85.0f }) {
-					const float tx = x + L * (edge / 100.0f);
-					ImDrawListManager::AddLine(a_dl, ImVec2(tx, y), ImVec2(tx, y + T), Col(0, 0, 0, 0.45f * alpha), std::max(1.0f, k));
+				if (!vertical) {
+					const float x0 = cfg.flip ? x + bw - fl : x;
+					ImDrawListManager::AddRectFilledMultiColor(a_dl, ImVec2(x0, y), ImVec2(x0 + fl, y + bh), cTop, cTop, cBot, cBot);
+				} else {
+					const float y0 = cfg.flip ? y : y + bh - fl;
+					ImDrawListManager::AddRectFilledMultiColor(a_dl, ImVec2(x, y0), ImVec2(x + bw, y0 + fl), cTop, cBot, cBot, cTop);
 				}
 			}
 
-			// label and number above the ends of the bar
-			const float textSize = std::max(9.0f, 12.0f * k);
-			const float textY = y - textSize - 2.0f * k;
-			if (cfg.showLabel) {
-				DrawLabel(a_dl, "Stress", x, textY, textSize, alpha, false);
+			// band edges, measured from the end the bar fills from
+			if (cfg.showTicks) {
+				for (const float edge : { 25.0f, 45.0f, 65.0f, 85.0f }) {
+					const float along = L * (edge / 100.0f);
+					if (!vertical) {
+						const float tx = cfg.flip ? x + bw - along : x + along;
+						ImDrawListManager::AddLine(a_dl, ImVec2(tx, y), ImVec2(tx, y + bh), Col(0, 0, 0, 0.45f * alpha), std::max(1.0f, k));
+					} else {
+						const float ty = cfg.flip ? y + along : y + bh - along;
+						ImDrawListManager::AddLine(a_dl, ImVec2(x, ty), ImVec2(x + bw, ty), Col(0, 0, 0, 0.45f * alpha), std::max(1.0f, k));
+					}
+				}
 			}
-			if (cfg.showValue) {
-				char value[16];
-				std::snprintf(value, sizeof(value), "%d", static_cast<int>(stress + 0.5f));
-				DrawLabel(a_dl, value, x + L, textY, textSize, alpha, true);
+
+			// label and number: above the ends of a flat bar; above and below a standing one
+			const float textSize = std::max(9.0f, 12.0f * k);
+			char        value[16];
+			std::snprintf(value, sizeof(value), "%d", static_cast<int>(stress + 0.5f));
+			if (!vertical) {
+				const float textY = y - textSize - 2.0f * k;
+				if (cfg.showLabel) {
+					DrawLabel(a_dl, "Stress", x, textY, textSize, alpha, 0);
+				}
+				if (cfg.showValue) {
+					DrawLabel(a_dl, value, x + bw, textY, textSize, alpha, 1);
+				}
+			} else {
+				if (cfg.showLabel) {
+					DrawLabel(a_dl, "Stress", x + bw * 0.5f, y - textSize - 2.0f * k, textSize, alpha, 2);
+				}
+				if (cfg.showValue) {
+					DrawLabel(a_dl, value, x + bw * 0.5f, y + bh + 2.0f * k, textSize, alpha, 2);
+				}
+			}
+
+			// move the bar with the mouse
+			if (a_preview && editMode) {
+				BarKit::Bar    b{ x, y, bw, bh, !vertical, cfg.flip };
+				float          dx = 0.0f, dy = 0.0f;
+				const int      moved = BarKit::HandleDrag(a_dl, &b, 1, dragBar, W, H, dx, dy);
+				if (moved >= 0) {
+					cfg.posX = std::clamp(cfg.posX + dx, 0.0f, 1.0f);
+					cfg.posY = std::clamp(cfg.posY + dy, 0.0f, 1.0f);
+					MarkDirty();
+				}
+			} else {
+				dragBar = -1;
 			}
 		}
 	}
 
 	Config& Cfg() { return cfg; }
+
+	bool& EditMode() { return editMode; }
 
 	const char* FilePath() { return kFile; }
 
@@ -222,6 +267,10 @@ namespace Hud
 				cfg.showTicks = f > 0.5f;
 			} else if (key == "pulse") {
 				cfg.pulse = f > 0.5f;
+			} else if (key == "orientation") {
+				cfg.orientation = f > 0.5f ? 1 : 0;
+			} else if (key == "flip") {
+				cfg.flip = f > 0.5f;
 			}
 		}
 	}
@@ -248,7 +297,9 @@ namespace Hud
 			<< "show_label=" << (cfg.showLabel ? 1 : 0) << "\n"
 			<< "show_value=" << (cfg.showValue ? 1 : 0) << "\n"
 			<< "show_ticks=" << (cfg.showTicks ? 1 : 0) << "\n"
-			<< "pulse=" << (cfg.pulse ? 1 : 0) << "\n";
+			<< "pulse=" << (cfg.pulse ? 1 : 0) << "\n"
+			<< "orientation=" << cfg.orientation << "\n"
+			<< "flip=" << (cfg.flip ? 1 : 0) << "\n";
 	}
 
 	void ResetLayout()
@@ -260,6 +311,8 @@ namespace Hud
 		cfg.opacity = d.opacity;
 		cfg.barLength = d.barLength;
 		cfg.barThickness = d.barThickness;
+		cfg.orientation = d.orientation;
+		cfg.flip = d.flip;
 	}
 
 	void MarkDirty() { saveTimer = 0.6f; }
