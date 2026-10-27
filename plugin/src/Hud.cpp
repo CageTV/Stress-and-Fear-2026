@@ -99,14 +99,15 @@ namespace Hud
 			ImDrawListManager::AddText(a_dl, GetFont(), a_size, ImVec2(x, a_y), Col(228, 232, 238, 0.95f * a_alpha), a_text);
 		}
 
-		void DrawBar(ImDrawList* a_dl, float a_dt, bool a_preview)
+		void DrawBar(ImDrawList* a_dl, float a_dt, bool a_preview, bool a_demo)
 		{
 			const auto* io = GetIO();
 			const float W = io->DisplaySize.x;
 			const float H = io->DisplaySize.y;
 			const float k = (H / 1080.0f) * cfg.scale;
 
-			const float stress = std::clamp(Settings::Stress(), 0.0f, 100.0f);
+			// While the settings page is open before the stress system is running, a sample value stands in so the bar can still be placed.
+			const float stress = a_demo ? 55.0f : std::clamp(Settings::Stress(), 0.0f, 100.0f);
 			const float frac = stress / 100.0f;
 			if (shown < 0.0f) {
 				shown = frac;
@@ -334,12 +335,13 @@ namespace Hud
 		if (previewFrames > 0) {
 			--previewFrames;
 		}
-		if (!cfg.enabled || !GameRunning() || !Settings::StressEnabled()) {
+		const bool running = GameRunning() && Settings::StressEnabled();
+		if (!cfg.enabled || (!running && !preview)) {
 			return;
 		}
 		if (!preview && (SKSEMenuFramework::IsAnyBlockingWindowOpened() || HudHiddenByGame())) {
 			return;
 		}
-		DrawBar(GetForegroundDrawList(), dt, preview);
+		DrawBar(GetForegroundDrawList(), dt, preview, !running);
 	}
 }
