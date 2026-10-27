@@ -181,20 +181,23 @@ namespace Hud
 			const float textSize = std::max(9.0f, 12.0f * k);
 			char        value[16];
 			std::snprintf(value, sizeof(value), "%d", static_cast<int>(stress + 0.5f));
+			// Flipping the bar flips its text too: the word stays at the end the bar fills from, the number at the other end.
 			if (!vertical) {
 				const float textY = y - textSize - 2.0f * k;
 				if (cfg.showLabel) {
-					DrawLabel(a_dl, "Stress", x, textY, textSize, alpha, 0);
+					DrawLabel(a_dl, "Stress", cfg.flip ? x + bw : x, textY, textSize, alpha, cfg.flip ? 1 : 0);
 				}
 				if (cfg.showValue) {
-					DrawLabel(a_dl, value, x + bw, textY, textSize, alpha, 1);
+					DrawLabel(a_dl, value, cfg.flip ? x : x + bw, textY, textSize, alpha, cfg.flip ? 0 : 1);
 				}
 			} else {
+				const float above = y - textSize - 2.0f * k;
+				const float below = y + bh + 2.0f * k;
 				if (cfg.showLabel) {
-					DrawLabel(a_dl, "Stress", x + bw * 0.5f, y - textSize - 2.0f * k, textSize, alpha, 2);
+					DrawLabel(a_dl, "Stress", x + bw * 0.5f, cfg.flip ? below : above, textSize, alpha, 2);
 				}
 				if (cfg.showValue) {
-					DrawLabel(a_dl, value, x + bw * 0.5f, y + bh + 2.0f * k, textSize, alpha, 2);
+					DrawLabel(a_dl, value, x + bw * 0.5f, cfg.flip ? above : below, textSize, alpha, 2);
 				}
 			}
 
