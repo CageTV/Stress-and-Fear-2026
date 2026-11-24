@@ -41,14 +41,14 @@ namespace Menu
 			return true;
 		}
 
-		// The same bands the original mod uses for its messages.
+		// The same bands and names as the original mod's stress spells (Stress_MinorCombatStress ... Stress_CriticalCombatStress): 25 / 45 / 65 / 85.
 		const char* Band(float a_stress)
 		{
 			if (a_stress > 85.0f) {
-				return "Severe";
+				return "Critical";
 			}
 			if (a_stress > 65.0f) {
-				return "High";
+				return "Severe";
 			}
 			if (a_stress > 45.0f) {
 				return "Moderate";
